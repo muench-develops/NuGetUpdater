@@ -48,6 +48,18 @@ NuGet Updater is a command-line tool designed to simplify the process of updatin
    dotnet run --path "path/to/your/project.csproj" --major --log "path/to/logfile.log"
     ```
 
+4. Publish the application 
+To prepare the application for use, publish it as a standalone executable:
+
+   ```bash
+    dotnet publish -c Release -r win-x64 --self-contained true -o [TargetFolder]
+    ```
+
+- Replace [TargetFolder] with the directory where youd like the published files to be saved. For example, `C:\Tools\NuGetUpdater`.
+- The `--self-contained true` flag ensures the executable includes the .NET runtime, so it can run on systems without .NET installed.
+
+Once published, navigate to the [TargetFolder] to run the application or configure it for global use.
+
  ## 🖥️ Usage
  ### Basic Commands
 ```bash

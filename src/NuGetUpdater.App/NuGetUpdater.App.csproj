@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>NuGetUpdater</AssemblyName>
     <RootNamespace>NuGetUpdater.App</RootNamespace>
     <LangVersion>12</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
