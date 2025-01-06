@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F17A92A5-4753-4C63-8F33-FE7BA2A7BE76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetUpdater.App", "src\NuGetUpdater.App\NuGetUpdater.App.csproj", "{26994255-782F-4D98-8537-EA2CE32FA166}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8A4A21C0-D89C-4B0F-97BE-B8CAE92CD67E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetUpdater.Tests", "tests\NuGetUpdater.Tests\NuGetUpdater.Tests.csproj", "{84C1F981-6E48-4883-87FB-A46B0FF858DD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26994255-782F-4D98-8537-EA2CE32FA166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26994255-782F-4D98-8537-EA2CE32FA166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26994255-782F-4D98-8537-EA2CE32FA166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26994255-782F-4D98-8537-EA2CE32FA166}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84C1F981-6E48-4883-87FB-A46B0FF858DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84C1F981-6E48-4883-87FB-A46B0FF858DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84C1F981-6E48-4883-87FB-A46B0FF858DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84C1F981-6E48-4883-87FB-A46B0FF858DD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{26994255-782F-4D98-8537-EA2CE32FA166} = {F17A92A5-4753-4C63-8F33-FE7BA2A7BE76}
+		{84C1F981-6E48-4883-87FB-A46B0FF858DD} = {8A4A21C0-D89C-4B0F-97BE-B8CAE92CD67E}
+	EndGlobalSection
+EndGlobal

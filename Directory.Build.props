@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <VersionPrefix>$(NugetVersion)</VersionPrefix>
+    <PackageVersion>$(NugetVersion)</PackageVersion>
+    <Copyright>Copyright (c) Justin Muench 2024-$([System.DateTime]::Now.ToString(yyyy))</Copyright>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Add SonarAnalyzer -->
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.4.0.108396" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>
