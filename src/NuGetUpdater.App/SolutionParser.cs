@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace NuGetUpdater.App;
 
@@ -13,7 +12,7 @@ internal static class SolutionParser
     /// </summary>
     /// <param name="solutionPath">The path to the solution file.</param>
     /// <returns>A list of absolute paths to the project files.</returns>
-    public static ReadOnlyCollection<string> GetProjectsFromSolution(string solutionPath)
+    public static List<string> GetProjectsFromSolution(string solutionPath)
     {
         var projectPaths = new List<string>();
 
@@ -51,6 +50,6 @@ internal static class SolutionParser
             throw new InvalidOperationException($"Error parsing solution file '{solutionPath}': {ex.Message}");
         }
 
-        return projectPaths.AsReadOnly();
+        return projectPaths;
     }
 }

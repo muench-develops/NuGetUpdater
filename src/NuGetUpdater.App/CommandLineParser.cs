@@ -3,7 +3,7 @@
 /// <summary>
 /// Handles parsing and validation of command-line arguments.
 /// </summary>
-public static class CommandLineParser
+internal static class CommandLineParser
 {
     /// <summary>
     /// Retrieves the value of a specific flag.
