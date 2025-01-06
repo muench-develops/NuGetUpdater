@@ -18,8 +18,8 @@ NuGet Updater is a command-line tool designed to simplify the process of updatin
 
 ## 🛠️ Requirements
 1. **.NET SDK**:
-   - Ensure `.NET 6+` or `.NET 9+` is installed to run this tool.
-2. **MSBuild**:
+   - Ensure `.NET 9+` is installed to run this tool.
+2. **MSBuild (If you want to update your Framework Packages)**:
    - MSBuild must be installed and added to your system's PATH environment variable. 
    - Example path for Visual Studio 2022:
      ```
