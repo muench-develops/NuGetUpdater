@@ -4,8 +4,12 @@ using Serilog;
 
 namespace NuGetUpdater.App.Wrapper;
 
-public class RestoreService : IRestoreService
+internal class RestoreService : IRestoreService
 {
+    /// <summary>
+    /// Restores the specified project by determining if it is a .NET Core project or not.
+    /// </summary>
+    /// <param name="projectFilePath">The file path of the project to restore.</param>
     public void Restore(string projectFilePath)
     {
         bool isCoreProject = IsDotNetCoreProject(projectFilePath);
@@ -26,22 +30,29 @@ public class RestoreService : IRestoreService
         var doc = XDocument.Load(projectFilePath);
         string? targetFramework = doc.Descendants("TargetFramework").FirstOrDefault()?.Value;
         return !string.IsNullOrEmpty(targetFramework) &&
-               (targetFramework.StartsWith("netcoreapp") || targetFramework.StartsWith("netstandard") || targetFramework.StartsWith("net"));
+               (targetFramework.StartsWith("netcoreapp", StringComparison.Ordinal) || targetFramework.StartsWith("netstandard", StringComparison.Ordinal) || targetFramework.StartsWith("net", StringComparison.Ordinal));
     }
 
     private static void ExecuteCommand(string fileName, string arguments)
     {
-        var processInfo = new ProcessStartInfo
+        try
         {
-            FileName = fileName,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-        var process = Process.Start(processInfo);
-        process?.WaitForExit();
+            var process = Process.Start(processInfo);
+            process?.WaitForExit();
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error executing command {FileName} {Arguments}", fileName, arguments);
+        }
     }
 }
