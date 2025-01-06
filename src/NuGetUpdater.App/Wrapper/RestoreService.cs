@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Xml.Linq;
+using Serilog;
 
 namespace NuGetUpdater.App.Wrapper;
 
@@ -10,15 +11,17 @@ public class RestoreService : IRestoreService
         bool isCoreProject = IsDotNetCoreProject(projectFilePath);
         if (isCoreProject)
         {
+            Log.Information("Restoring project {ProjectFilePath} using dotnet", projectFilePath);
             ExecuteCommand("dotnet", $"restore \"{projectFilePath}\"");
         }
         else
         {
+            Log.Information("Restoring project {ProjectFilePath} using msbuild", projectFilePath);
             ExecuteCommand("msbuild", $"\"{projectFilePath}\" /restore");
         }
     }
 
-    private static bool IsDotNetCoreProject(string projectFilePath)
+    internal static bool IsDotNetCoreProject(string projectFilePath)
     {
         var doc = XDocument.Load(projectFilePath);
         string? targetFramework = doc.Descendants("TargetFramework").FirstOrDefault()?.Value;

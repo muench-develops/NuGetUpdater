@@ -1,4 +1,5 @@
 ﻿using NuGet.Versioning;
+using Serilog;
 
 namespace NuGetUpdater.App.Wrapper;
 
@@ -12,7 +13,8 @@ internal class UpdateService(IFileSystem fileSystem) : IUpdateService
         foreach (Dependency dependency in dependencies)
         {
             var currentVersion = new NuGetVersion(dependency.Version);
-            NuGetVersion? latestVersion = await Nugetupdate.GetLatestVersion(dependency.PackageId, updateType, currentVersion);
+            NuGetVersion? latestVersion =
+                await Nugetupdate.GetLatestVersion(dependency.PackageId, updateType, currentVersion);
 
             if (latestVersion == null || currentVersion >= latestVersion)
             {
@@ -21,24 +23,23 @@ internal class UpdateService(IFileSystem fileSystem) : IUpdateService
 
             UpdatePackageVersion(projectPath, dependency.PackageId, latestVersion.ToString());
             dependenciesWithUpdates.Add((dependency, latestVersion));
-
         }
-        ConsoleRenderer.DisplayProjectWithPackages(Path.GetFileName(projectPath), dependenciesWithUpdates, updateType);
+
+        ConsoleRenderer.DisplayProjectWithPackages(Path.GetFileName(projectPath), dependenciesWithUpdates);
 
         return dependenciesWithUpdates.Count > 0;
     }
 
     private void UpdatePackageVersion(string projectPath, string packageId, string newVersion)
     {
-        if (projectPath.EndsWith(".csproj"))
+        if (RestoreService.IsDotNetCoreProject(projectPath))
         {
             Nugetupdate.UpdatePackageVersionInCsproj(projectPath, packageId, newVersion);
+            return;
         }
-        else if (projectPath.EndsWith("packages.config"))
-        {
-            string configPath = Path.Combine(fileSystem.GetDirectoryName(projectPath), "packages.config");
-            Nugetupdate.UpdatePackageVersionInPackagesConfig(configPath, packageId, newVersion);
-        }
+
+        string configPath = Path.Combine(fileSystem.GetDirectoryName(projectPath), "packages.config");
+        Log.Information("Updating {PackageId} to {NewVersion} in {ConfigPath}", packageId, newVersion, configPath);
+        Nugetupdate.UpdatePackageVersionInPackagesConfig(configPath, packageId, newVersion);
     }
 }
-

@@ -66,10 +66,14 @@ internal static class Nugetupdate
         try
         {
             var doc = XDocument.Load(configPath);
+            Log.Debug("Loaded packages.config from {ConfigPath}", configPath);
 
             // Suche nach dem Paket
             XElement? packageElement = doc.Descendants("package")
                 .FirstOrDefault(pkg => pkg.Attribute("id")?.Value == packageId);
+
+            Log.Debug("Found package {PackageId} in {ConfigPath}: {PackageElement}", packageId, configPath,
+                packageElement);
 
             if (packageElement == null)
             {
