@@ -1,17 +1,15 @@
-﻿
-// Display the header
-
-using NuGet.Versioning;
-using NuGetUpdater.App;
+﻿using NuGetUpdater.App;
+using NuGetUpdater.App.Wrapper;
 using Serilog;
 
 ConsoleRenderer.DisplayHeader("NuGet Updater");
 
-// Parse command-line arguments
-(bool IsValid, string ErrorMessage) = CommandLineParser.ValidateArguments(args);
-if (!IsValid)
+var fileSystem = new FileSystem();
+var restoreService = new RestoreService();
+var updateService = new UpdateService(fileSystem);
+
+if (ValidateInput(args))
 {
-    ConsoleRenderer.DisplayError(ErrorMessage);
     return;
 }
 
@@ -19,25 +17,7 @@ string? projectPath = CommandLineParser.GetFlagValue(args, "--path");
 string? updateType = CommandLineParser.GetFlag(args, ["--major", "--minor", "--patch"]);
 string? logPath = CommandLineParser.GetFlagValue(args, "--log");
 
-if (!string.IsNullOrEmpty(logPath))
-{
-    Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Information()
-        .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
-        .WriteTo.File(logPath, rollingInterval: RollingInterval.Day, formatProvider: System.Globalization.CultureInfo.InvariantCulture)
-        .CreateLogger();
-
-    Log.Information("Logging initialized. Log file: {LogPath}", logPath);
-}
-else
-{
-    Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Information()
-        .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
-        .CreateLogger();
-
-    Log.Information("Logging initialized without a log file.");
-}
+AddLogging(logPath);
 
 if (string.IsNullOrEmpty(updateType))
 {
@@ -46,39 +26,73 @@ if (string.IsNullOrEmpty(updateType))
 }
 
 // Determine project or solution files
-List<string> projectFiles = File.Exists(projectPath) && projectPath.EndsWith(".sln", StringComparison.Ordinal)
-    ? [.. SolutionParser.GetProjectsFromSolution(projectPath)]
-    : [projectPath ?? string.Empty];
+List<string> projectFiles = GetProjectFiles(projectPath);
 
-foreach (string projectFile in projectFiles)
+await ProcessProjectFilesAsync(projectFiles, updateType);
+
+return;
+
+void AddLogging(string? s)
 {
-    // Log project processing
-    Log.Information("Processing project: {ProjectFile}", Path.GetFileName(projectFile));
-
-    // Load dependencies for the project
-    List<Dependency> dependencies = DependencyLoader.LoadDependencies(projectFile);
-
-    // Fetch the latest versions for each dependency
-    var dependenciesWithUpdates = new List<(Dependency Current, NuGetVersion? Latest)>();
-    foreach (Dependency dependency in dependencies)
+    if (!string.IsNullOrEmpty(s))
     {
-        var currentVersion = new NuGetVersion(dependency.Version);
-        NuGetVersion? latestVersion = await Nugetupdate.GetLatestVersion(dependency.PackageId, updateType, currentVersion);
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
+            .WriteTo.File(s, rollingInterval: RollingInterval.Day, formatProvider: System.Globalization.CultureInfo.InvariantCulture)
+            .CreateLogger();
 
-        Log.Information("Checking package {PackageId}: Current: {CurrentVersion}, Latest: {LatestVersion}", dependency.PackageId, dependency.Version, latestVersion);
-
-        // Skip packages that are already up-to-date
-        if (latestVersion == null || dependency.Version == latestVersion.ToString())
-        {
-            Log.Information("Package {PackageId} is already up-to-date.", dependency.PackageId);
-            continue;
-        }
-
-        dependenciesWithUpdates.Add((dependency, latestVersion));
+        Log.Information("Logging initialized. Log file: {LogPath}", s);
     }
+    else
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
+            .CreateLogger();
 
-    // Display project and its packages with updates
-    ConsoleRenderer.DisplayProjectWithPackages(Path.GetFileName(projectFile), dependenciesWithUpdates, updateType);
+        Log.Information("Logging initialized without a log file.");
+    }
 }
 
-Console.ReadKey();
+bool ValidateInput(string[] strings)
+{
+    // Parse command-line arguments
+    (bool isValid, string errorMessage) = CommandLineParser.ValidateArguments(strings);
+    if (isValid)
+    {
+        return false;
+    }
+
+    ConsoleRenderer.DisplayError(errorMessage);
+    return true;
+
+}
+
+List<string> GetProjectFiles(string? projectPath1)
+{
+    List<string> list = File.Exists(projectPath1) && projectPath1.EndsWith(".sln", StringComparison.Ordinal)
+        ? [.. SolutionParser.GetProjectsFromSolution(projectPath1, new FileSystem())]
+        : [projectPath1 ?? string.Empty];
+    return list;
+}
+
+async Task ProcessProjectFilesAsync(List<string> projectFiles1, string updateType1)
+{
+    foreach (string projectFile in projectFiles1)
+    {
+        // Log project processing
+        Log.Information("Processing project: {ProjectFile}", Path.GetFileName(projectFile));
+
+        bool anyUpdatedDependencies = await updateService.UpdateDependenciesAsync(projectFile, updateType1);
+
+        // Run restore
+        if (anyUpdatedDependencies)
+        {
+            restoreService.Restore(projectFile);
+        }
+
+        Log.Information("Project {ProjectFile} updated successfully.", Path.GetFileName(projectFile));
+        ConsoleRenderer.DisplaySuccess($"Project {Path.GetFileName(projectFile)} updated successfully.");
+    }
+}

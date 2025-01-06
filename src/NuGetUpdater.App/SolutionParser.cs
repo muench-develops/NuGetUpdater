@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using NuGetUpdater.App.Wrapper;
 
 namespace NuGetUpdater.App;
 
@@ -11,43 +12,35 @@ internal static class SolutionParser
     /// Extracts the paths of projects included in a solution file.
     /// </summary>
     /// <param name="solutionPath">The path to the solution file.</param>
+    /// <param name="fileSystem">Filesystem Wrapper</param>
     /// <returns>A list of absolute paths to the project files.</returns>
-    public static List<string> GetProjectsFromSolution(string solutionPath)
+    public static List<string> GetProjectsFromSolution(string solutionPath, IFileSystem fileSystem)
     {
         var projectPaths = new List<string>();
 
-        try
+        if (!fileSystem.FileExists(solutionPath))
         {
-            string? solutionDirectory = Path.GetDirectoryName(solutionPath);
-            if (solutionDirectory == null || !File.Exists(solutionPath))
-            {
-                throw new FileNotFoundException($"Solution file not found: {solutionPath}");
-            }
-
-            // Regex to match .csproj entries in the .sln file
-            var projectRegex = new Regex(@"Project\(""\{.*?\}""\) = "".*?"", ""(.*?)"", ""\{.*?\}""");
-
-            foreach (string line in File.ReadAllLines(solutionPath))
-            {
-                Match match = projectRegex.Match(line);
-                if (!match.Success)
-                {
-                    continue;
-                }
-
-                // Convert relative path to absolute path
-                string relativePath = match.Groups[1].Value.Replace("\\", Path.DirectorySeparatorChar.ToString());
-                string fullPath = Path.Combine(solutionDirectory, relativePath);
-
-                if (File.Exists(fullPath))
-                {
-                    projectPaths.Add(fullPath);
-                }
-            }
+            throw new FileNotFoundException($"Solution file not found: {solutionPath}");
         }
-        catch (Exception ex)
+
+        string solutionDirectory = fileSystem.GetDirectoryName(solutionPath);
+        var projectRegex = new Regex(@"Project\(""\{.*?\}""\) = "".*?"", ""(.*?)"", ""\{.*?\}""");
+
+        foreach (string line in fileSystem.ReadAllLines(solutionPath))
         {
-            throw new InvalidOperationException($"Error parsing solution file '{solutionPath}': {ex.Message}");
+            Match match = projectRegex.Match(line);
+            if (!match.Success)
+            {
+                continue;
+            }
+
+            string relativePath = match.Groups[1].Value.Replace("\\", Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal);
+            string fullPath = Path.Combine(solutionDirectory, relativePath);
+
+            if (fileSystem.FileExists(fullPath))
+            {
+                projectPaths.Add(fullPath);
+            }
         }
 
         return projectPaths;

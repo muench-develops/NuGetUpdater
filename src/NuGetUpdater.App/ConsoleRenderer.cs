@@ -25,7 +25,7 @@ internal static class ConsoleRenderer
     /// <param name="projectFileName">The name of the project file being processed.</param>
     /// <param name="dependencies">A list of dependencies for the project.</param>
     /// <param name="updateType">The type of update (--major, --minor, --patch).</param>
-    public static void DisplayProjectWithPackages(string projectFileName, List<(Dependency Current, NuGetVersion? Latest)> dependencies, string updateType)
+    public static void DisplayProjectWithPackages(string projectFileName, List<(Dependency Current, NuGetVersion? Latest)> dependencies)
     {
         Table table = new Table()
             .Border(TableBorder.Rounded)

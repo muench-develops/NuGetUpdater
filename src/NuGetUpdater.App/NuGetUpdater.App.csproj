@@ -18,4 +18,10 @@
     <PackageReference Include="Spectre.Console" Version="0.49.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>NuGetUpdater.Tests</_Parameter1>
+    </AssemblyAttribute>
+</ItemGroup>
+
 </Project>

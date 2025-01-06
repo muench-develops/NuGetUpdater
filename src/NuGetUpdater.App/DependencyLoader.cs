@@ -1,4 +1,5 @@
 ﻿using System.Xml.Linq;
+using NuGetUpdater.App.Wrapper;
 
 namespace NuGetUpdater.App;
 
@@ -31,7 +32,7 @@ internal static class DependencyLoader
     private static List<Dependency> LoadFromSolution(string slnPath)
     {
         var dependencies = new List<Dependency>();
-        List<string>? projects = SolutionParser.GetProjectsFromSolution(slnPath);
+        List<string>? projects = SolutionParser.GetProjectsFromSolution(slnPath, new FileSystem());
 
         foreach (string project in projects)
         {
